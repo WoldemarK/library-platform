@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/auth_db}
+    username: ${DB_USERNAME:library}
+    password: ${DB_PASSWORD:library_dev}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    health:
+      show-details: always
+
+auth:
+  jwt:
+    keystore:
+      path: ${AUTH_KEYSTORE_PATH:./infrastructure/secrets/auth-signing.p12}
+      password: ${AUTH_KEYSTORE_PASSWORD}
+      alias: ${AUTH_KEY_ALIAS:library-auth}
