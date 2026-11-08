@@ -1,3 +1,7 @@
+-- Author: Vladimir Kovtunov
+-- Description: Create users and roles
+-- Created: 08-11-2026
+
 CREATE TABLE roles
 (
     id   UUID PRIMARY KEY,

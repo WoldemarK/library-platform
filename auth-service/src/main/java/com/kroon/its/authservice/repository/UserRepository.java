@@ -1,6 +1,6 @@
 package com.kroon.its.authservice.repository;
 
-import com.kroon.its.authservice.user.entity.User;
+import com.kroon.its.authservice.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

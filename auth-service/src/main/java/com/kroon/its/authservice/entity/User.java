@@ -1,4 +1,4 @@
-package com.kroon.its.authservice.user.entity;
+package com.kroon.its.authservice.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

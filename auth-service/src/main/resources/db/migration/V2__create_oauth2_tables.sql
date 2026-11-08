@@ -1,3 +1,7 @@
+-- Author: Vladimir Kovtunov
+-- Description:
+-- Created: 07-08-2026
+
 CREATE TABLE oauth2_registered_client
 (
     id                            varchar(100) PRIMARY KEY,

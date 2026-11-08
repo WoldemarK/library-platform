@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.server.authorization.client.JdbcRegis
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -81,14 +82,19 @@ public class AuthorizationServerConfig {
 
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(
-            org.springframework.jdbc.core.JdbcOperations jdbcOperations,
-            PasswordEncoder passwordEncoder
+    public RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations,
+                                                                 PasswordEncoder passwordEncoder
     ) {
-        JdbcRegisteredClientRepository repository = new JdbcRegisteredClientRepository(jdbcOperations);
+        var repository = new JdbcRegisteredClientRepository(jdbcOperations);
 
-        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+        // Не создаём клиента повторно при каждом запуске
+        if (repository.findByClientId("library-web") != null) {
+            return repository;
+        }
+
+        var client = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("library-web")
+                .clientName("Library Web")
                 .clientSecret(passwordEncoder.encode("change-me-local"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -97,24 +103,17 @@ public class AuthorizationServerConfig {
                 .scope("openid")
                 .scope("profile")
                 .scope("library.read")
-                .clientSettings(
-                        org.springframework.security.oauth2.server.authorization.settings
-                                .ClientSettings.builder()
+                .clientSettings(ClientSettings.builder()
                                 .requireProofKey(true)
-                                .build()
-                )
-                .tokenSettings(
-                        TokenSettings.builder()
+                                .build())
+                .tokenSettings(TokenSettings.builder()
                                 .accessTokenTimeToLive(Duration.ofMinutes(15))
                                 .refreshTokenTimeToLive(Duration.ofDays(7))
                                 .reuseRefreshTokens(false)
-                                .build()
-                )
+                                .build())
                 .build();
 
-        if (repository.findByClientId("library-web") == null) {
-            repository.save(client);
-        }
+        repository.save(client);
 
         return repository;
     }

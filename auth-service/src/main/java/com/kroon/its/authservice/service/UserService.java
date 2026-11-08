@@ -5,8 +5,8 @@ import com.kroon.its.authservice.dto.RegistrationResponse;
 import com.kroon.its.authservice.exception.ResourceConflictException;
 import com.kroon.its.authservice.repository.RoleRepository;
 import com.kroon.its.authservice.repository.UserRepository;
-import com.kroon.its.authservice.user.entity.Role;
-import com.kroon.its.authservice.user.entity.User;
+import com.kroon.its.authservice.entity.Role;
+import com.kroon.its.authservice.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,9 @@ public class UserService {
 
         validate(request);
 
-        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        String email = request.email()
+                .trim()
+                .toLowerCase(Locale.ROOT);
 
         if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new ResourceConflictException("User already exists");

@@ -1,7 +1,7 @@
 package com.kroon.its.authservice.config;
 
 import com.kroon.its.authservice.repository.UserRepository;
-import com.kroon.its.authservice.user.entity.Role;
+import com.kroon.its.authservice.entity.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;

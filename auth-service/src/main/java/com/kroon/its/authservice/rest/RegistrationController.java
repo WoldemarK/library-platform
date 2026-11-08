@@ -1,4 +1,4 @@
-package com.kroon.its.authservice.controller;
+package com.kroon.its.authservice.rest;
 
 import com.kroon.its.authservice.dto.RegistrationRequest;
 import com.kroon.its.authservice.dto.RegistrationResponse;

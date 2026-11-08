@@ -1,4 +1,3 @@
-
 server:
   port: 8082
 
@@ -6,25 +5,48 @@ spring:
   application:
     name: library-service
 
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/library_db
-#    username: library
-#    password: library_dev
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/library_db
+    username: library
+    password: library_dev
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    installed-by: Vladimir Kovtunov
+
 
   kafka:
     bootstrap-servers: localhost:29092
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+
     consumer:
       group-id: library-service
+      auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.library.*"
 
 management:
   endpoints:
