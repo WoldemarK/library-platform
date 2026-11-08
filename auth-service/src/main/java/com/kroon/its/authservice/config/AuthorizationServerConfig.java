@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -36,8 +37,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Key;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateKey;
@@ -61,16 +60,17 @@ public class AuthorizationServerConfig {
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http.oauth2AuthorizationServer(authorizationServer -> {
-                    http.securityMatcher(authorizationServer.getEndpointsMatcher());
+        http.oauth2AuthorizationServer(auth ->
+                        {
 
-                    authorizationServer.oidc(Customizer.withDefaults());
-                })
-                .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().authenticated()
+                            http.securityMatcher(auth.getEndpointsMatcher());
+
+                            auth.oidc(Customizer.withDefaults());
+                        }
                 )
-                .exceptionHandling(exceptions ->
-                        exceptions.defaultAuthenticationEntryPointFor(
+                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint("/login"),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                         )
@@ -120,19 +120,18 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public OAuth2AuthorizationService authorizationService(
-            org.springframework.jdbc.core.JdbcOperations jdbcOperations,
-            RegisteredClientRepository registeredClientRepository) {
+    public OAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations,
+                                                           RegisteredClientRepository registered
+    ) {
 
-        return new JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository);
+        return new JdbcOAuth2AuthorizationService(jdbcOperations, registered);
     }
 
     @Bean
-    public OAuth2AuthorizationConsentService authorizationConsentService(
-            org.springframework.jdbc.core.JdbcOperations jdbcOperations,
-            RegisteredClientRepository registeredClientRepository
+    public OAuth2AuthorizationConsentService authorizationConsentService(JdbcOperations jdbcOperations,
+                                                                         RegisteredClientRepository registered
     ) {
-        return new JdbcOAuth2AuthorizationConsentService(jdbcOperations, registeredClientRepository);
+        return new JdbcOAuth2AuthorizationConsentService(jdbcOperations, registered);
     }
 
     @Bean
@@ -157,8 +156,7 @@ public class AuthorizationServerConfig {
 
         Certificate certificate = keyStore.getCertificate(keyAlias);
 
-        if (certificate == null ||
-                !(certificate.getPublicKey() instanceof RSAPublicKey publicKey)) {
+        if (certificate == null || !(certificate.getPublicKey() instanceof RSAPublicKey publicKey)) {
             throw new IllegalStateException(
                     "RSA public key not found in keystore: " + keyAlias
             );
