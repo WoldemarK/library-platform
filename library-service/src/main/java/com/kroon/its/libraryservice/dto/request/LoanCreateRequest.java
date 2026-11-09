@@ -7,6 +7,10 @@ public record LoanCreateRequest
         (
                 @NotNull(message = "Book copy ID is required")
                 @Positive(message = "Book copy ID must be positive")
-                Long bookCopyId
+                Long bookCopyId,
+
+                @NotNull
+                @Positive
+                Integer loanDays
         ) {
 }

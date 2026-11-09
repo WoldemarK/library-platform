@@ -24,6 +24,10 @@ public record BookCreateRequest
                 @NotEmpty(message = "At least one author is required")
                 Set<@NotNull @Positive Long> authorIds,
 
-                Set<@NotNull @Positive Long> genreIds
+                Set<@NotNull @Positive Long> genreIds,
+
+                @NotNull
+                @Min(1)
+                Integer copiesCount
         ) {
 }
